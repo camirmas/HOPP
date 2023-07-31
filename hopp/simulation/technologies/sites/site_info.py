@@ -1,8 +1,11 @@
+from pathlib import Path
+from typing import Optional, Union
+
 import matplotlib.pyplot as plt
-from shapely.geometry import *
-from shapely.geometry.base import *
+import numpy as np
+from shapely.geometry import Polygon, Point
+from shapely.geometry.base import BaseGeometry
 from attrs import define, field
-from typing import Optional
 
 from hopp.simulation.base import BaseClass
 from hopp.simulation.technologies.resource.solar_resource import SolarResource
@@ -65,9 +68,9 @@ class SiteInfo(BaseClass):
         ``True`` if a desired schedule was provided, ``False`` otherwise
     """
     data: dict = field(converter=dict)
-    solar_resource_file: str = field(default="", converter=resource_file_converter)
-    wind_resource_file: str = field(default="", converter=resource_file_converter)
-    grid_resource_file: str = field(default="", converter=resource_file_converter)
+    solar_resource_file: Union[str, Path] = field(default="", converter=resource_file_converter)
+    wind_resource_file: Union[str, Path] = field(default="", converter=resource_file_converter)
+    grid_resource_file: Union[str, Path] = field(default="", converter=resource_file_converter)
     hub_height: float = field(default=97.)
     capacity_hours: list = field(default=[])
     desired_schedule: list = field(default=[])
@@ -120,9 +123,6 @@ class SiteInfo(BaseClass):
             self.vertices = np.array([np.array(v) for v in self.data['site_boundaries']['verts']])
             self.polygon: Polygon = Polygon(self.vertices)
             self.valid_region = self.polygon.buffer(1e-8)
-        if 'kml_file' in self.data:
-            self.kml_data, self.polygon, self.data['lat'], self.data['lon'] = self.kml_read(self.data['kml_file'])
-            self.polygon = self.polygon.buffer(1e-8)
         if 'lat' not in self.data or 'lon' not in self.data:
             raise ValueError("SiteInfo requires lat and lon")
         self.lat = self.data['lat']
