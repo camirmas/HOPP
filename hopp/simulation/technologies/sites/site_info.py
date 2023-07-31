@@ -2,6 +2,7 @@ import matplotlib.pyplot as plt
 from shapely.geometry import *
 from shapely.geometry.base import *
 from attrs import define, field
+from typing import Optional
 
 from hopp.simulation.base import BaseClass
 from hopp.simulation.technologies.resource.solar_resource import SolarResource
@@ -82,7 +83,7 @@ class SiteInfo(BaseClass):
     elec_prices: ElectricityPrices = field(init=False)
     n_periods_per_day: int = field(init=False)
     interval: int = field(init=False)
-    urdb_label: str | None = field(init=False)
+    urdb_label: Optional[str] = field(init=False)
     follow_desired_schedule: bool = field(init=False)
 
     def __attrs_post_init__(self) -> None:

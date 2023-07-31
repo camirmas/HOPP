@@ -42,7 +42,7 @@ def hopp_array_converter(data: Iterable) -> np.ndarray:
         raise TypeError(e.args[0] + f". Data given: {data}")
     return a
 
-def resource_file_converter(resource_file: str) -> None:
+def resource_file_converter(resource_file: str) -> Union[str, Path]:
     # If the default value of an empty string is supplied, just pass through the default
     if resource_file == "":
         return resource_file
@@ -102,7 +102,7 @@ def iter_validator(iter_type, item_types: Union[Any, Tuple[Any]]) -> Callable:
     )
     return validator
 
-def convert_to_path(fn: str | Path) -> Path:
+def convert_to_path(fn: Union[str, Path]) -> Path:
     """Converts an input string or pathlib.Path object to a fully resolved ``pathlib.Path``
     object.
 
