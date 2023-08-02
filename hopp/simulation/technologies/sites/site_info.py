@@ -38,7 +38,7 @@ class SiteInfo(BaseClass):
         dictionary of initialization data
     lat : float
         site latitude [decimal degrees]
-    long : float
+    lon : float
         site longitude [decimal degrees]
     vertices : np.array
         site boundary vertices [m]
@@ -80,9 +80,9 @@ class SiteInfo(BaseClass):
     valid_region = field(init=False)
     lat: NDArrayFloat = field(init=False)
     lon: NDArrayFloat = field(init=False)
-    solar_resource: SolarResource = field(init=False)
+    solar_resource: SolarResource = field(init=False, default=None)
     n_timesteps: int = field(init=False)
-    wind_resource: WindResource = field(init=False)
+    wind_resource: WindResource = field(init=False, default=None)
     elec_prices: ElectricityPrices = field(init=False)
     n_periods_per_day: int = field(init=False)
     interval: int = field(init=False)
@@ -158,7 +158,6 @@ class SiteInfo(BaseClass):
             self.capacity_hours = [False] * self.n_timesteps
 
         # Desired load schedule for the system to dispatch against
-        self.desired_schedule = self.desired_schedule
         self.follow_desired_schedule = len(self.desired_schedule) == self.n_timesteps
 
             # FIXME: this a hack
