@@ -33,6 +33,9 @@ jobs:
           environment-file: environment.yml
           activate-environment: hopp
           auto-activate-base: false
+      - name: Debug Print dependencies
+        run: |
+          conda list
       - name: Install package
         run: |
           python setup.py develop
