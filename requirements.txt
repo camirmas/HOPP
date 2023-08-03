@@ -15,7 +15,7 @@ lxml
 matplotlib
 nevergrad
 nlopt
-numpy
+numpy<1.25
 numpy-financial
 optuna
 pandas>=1.5
