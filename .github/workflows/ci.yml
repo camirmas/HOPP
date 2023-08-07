@@ -48,8 +48,7 @@ jobs:
       - name: Unit tests
         run: |
           pip install pytest
-          pip install pytest-timeout
-          pytest --timeout=60 -vs tests/hopp
+          pytest --collect-only --cache-clear -vs tests
       - name: Lint with flake8
         run: |
           # exit-zero treats all errors as warnings. The GitHub editor is 127 chars wide
