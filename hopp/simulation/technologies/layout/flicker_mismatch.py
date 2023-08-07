@@ -1,10 +1,12 @@
+import sys
+from itertools import product
+import copy
 from typing import List, Union, Optional, Sequence
 import multiprocessing as mp
 from pathlib import Path
 import functools
-import copy
-from itertools import product
-import sys
+
+import numpy as np
 import matplotlib.pyplot as plt
 sys.path.append('.')
 
@@ -16,7 +18,7 @@ import PySAM.Pvwattsv8 as pv
 from hopp.utilities.log import flicker_logger as logger
 from hopp.simulation.technologies.resource import SolarResource
 from hopp.simulation.technologies.layout.shadow_flicker import get_sun_pos, get_turbine_shadows_timeseries, create_pv_string_points
-from hopp.simulation.technologies.layout.pv_module import *
+from hopp.simulation.technologies.layout.pv_module import module_width, module_height, modules_per_string, cell_num_map_flat
 
 # global variables
 tolerance = 1e-3

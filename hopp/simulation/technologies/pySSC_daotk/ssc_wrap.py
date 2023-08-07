@@ -1,6 +1,6 @@
 import sys, os
 sys.path.insert(1, os.path.join(sys.path[0], '..'))
-from ctypes import *
+from ctypes import c_double
 c_number = c_double  # must be c_double or c_float depending on how defined in sscapi.h
 import abc
 import importlib

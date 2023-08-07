@@ -3,7 +3,8 @@ import PySAM.Windpower as Windpower
 import PySAM.Singleowner as Singleowner
 from hopp.simulation.technologies.wind.floris import Floris
 
-from hopp.simulation.technologies.power_source import *
+from hopp.simulation.technologies.power_source import PowerSource
+from hopp.simulation.technologies.sites.site_info import SiteInfo
 from hopp.simulation.technologies.layout.wind_layout import WindLayout, WindBoundaryGridParameters
 from hopp.simulation.technologies.dispatch.power_sources.wind_dispatch import WindDispatch
 

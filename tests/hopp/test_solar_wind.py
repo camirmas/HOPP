@@ -1,7 +1,8 @@
 import sys
 from pytest import approx
 import csv
-from hopp.simulation.technologies.layout.shadow_flicker import *
+import numpy as np
+from hopp.simulation.technologies.layout.shadow_flicker import get_sun_pos, get_turbine_shadow_polygons
 from hopp.simulation.technologies.sites import flatirons_site
 
 sys.path.append('..')

@@ -11,7 +11,7 @@ from shapely.affinity import translate
 
 from hopp.simulation.technologies.layout.flicker_mismatch import FlickerMismatch
 from hopp.simulation.technologies.layout.shadow_flicker import create_turbines_in_grid, get_turbine_grid_shadow
-from hopp.simulation.technologies.layout.pv_module import *
+from hopp.simulation.technologies.layout.pv_module import module_width, module_height
 
 from hopp.utilities.log import flicker_logger as logger
 sys.path.append('.')

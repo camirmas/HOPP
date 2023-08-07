@@ -1,18 +1,15 @@
 from typing import Union, Tuple, Optional, List
+
 import datetime
 import pytz
-
+import numpy as np
 import matplotlib.pyplot as plt
 from matplotlib.animation import FuncAnimation
 from shapely.affinity import translate
-from shapely.geometry import Point
-from shapely.geometry import Polygon, MultiPolygon, MultiPoint
+from shapely.geometry import Polygon, MultiPolygon, MultiPoint, Point
 from shapely.ops import unary_union
 import timezonefinder
-from pysolar.solar import *
-from pvmismatch import *
-
-from hopp.simulation.technologies.layout.pv_module import *
+from pysolar.solar import get_azimuth, get_altitude
 
 
 def get_time_zone(lat: float,
