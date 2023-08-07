@@ -48,6 +48,7 @@ jobs:
       - name: Unit tests
         run: |
           pip install pytest
+          rm -rf .pytest_cache
           pytest --collect-only --cache-clear -vs tests
       - name: Lint with flake8
         run: |
