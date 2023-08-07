@@ -6,7 +6,7 @@ dependencies:
   - coin-or-cbc
   - glpk
   - numpy<1.25
-  - pip
+  - pip<23.0
   - pip:
     - Cython
     - NREL-PySAM-stubs==3.0.0
