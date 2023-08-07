@@ -7,7 +7,7 @@ import attrs
 from hopp.type_dec import FromDictMixin
 from hopp.logging_manager import LoggerBase
 
-class BaseClass(LoggerBase, FromDictMixin):
+class BaseClass(FromDictMixin):
     """
     BaseClass object class. This class does the logging and MixIn class inheritance.
     """
