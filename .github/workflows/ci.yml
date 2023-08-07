@@ -48,6 +48,7 @@ jobs:
       - name: Unit tests
         run: |
           pip install pytest
+          pip install pytest-timeout
           pytest --collect-only -vs tests/hopp
       - name: Lint with flake8
         run: |

@@ -22,7 +22,7 @@ import matplotlib.pyplot as plt
 import warnings
 from pathlib import Path
 import time
-from multiprocessing import Pool
+from multiprocessing_on_dill import Pool
 warnings.filterwarnings("ignore")
 
 import hopp_tools

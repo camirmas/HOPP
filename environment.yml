@@ -6,7 +6,7 @@ dependencies:
   - coin-or-cbc
   - glpk
   - numpy<1.25
-  - pip<23.0
+  - pip
   - pip:
     - Cython
     - NREL-PySAM-stubs==3.0.0
@@ -23,6 +23,7 @@ dependencies:
     - lcoe
     - lxml
     - matplotlib
+    - multiprocessing-on-dill
     - nevergrad
     - nlopt
     - numpy-financial

@@ -14,7 +14,7 @@ from functools import wraps, partial
 
 import concurrent.futures as cf
 import threading
-import multiprocessing
+import multiprocessing_on_dill as multiprocessing
 from typing import Callable
 
 
