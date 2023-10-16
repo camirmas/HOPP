@@ -2,7 +2,7 @@ from pytest import approx, fixture
 import json
 
 from hopp import ROOT_DIR
-from hopp.tools import HoppInterface
+from hopp import HoppInterface
 from hopp.simulation.technologies.layout.hybrid_layout import WindBoundaryGridParameters
 from hopp.simulation.technologies.financial.custom_financial_model import CustomFinancialModel
 from hopp.simulation.technologies.detailed_pv_plant import DetailedPVPlant, DetailedPVConfig

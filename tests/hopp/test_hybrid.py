@@ -8,7 +8,7 @@ import json
 from attrs import asdict
 import PySAM.Singleowner as Singleowner
 
-from hopp.tools import HoppInterface
+from hopp.tools.hopp_interface import HoppInterface
 
 from hopp.simulation.technologies.sites import SiteInfo
 from hopp.simulation.technologies.layout.pv_layout import PVGridParameters
@@ -16,7 +16,7 @@ from hopp.simulation.hybrid_simulation import HybridSimulation
 from hopp.simulation.technologies.detailed_pv_plant import DetailedPVPlant, DetailedPVConfig
 from examples.Detailed_PV_Layout.detailed_pv_layout import DetailedPVParameters, DetailedPVLayout
 from examples.Detailed_PV_Layout.detailed_pv_config import PVLayoutConfig
-from hopp.simulation.technologies.grid import Grid, GridConfig
+from hopp.simulation.technologies.grid import Grid
 from hopp.simulation.technologies.layout.pv_design_utils import size_electrical_parameters
 from hopp.simulation.technologies.financial.mhk_cost_model import MHKCostModelInputs
 from tests.hopp.utils import create_default_site_info
@@ -184,6 +184,7 @@ def test_hybrid_wave_only(hybrid_config, wavesite, subtests):
     with subtests.test("hybrid wave only npv"):
         assert npvs.hybrid == approx(npvs.wave)
 
+
 def test_hybrid_wind_only(hybrid_config):
     technologies = hybrid_config["technologies"]
     wind_only = {key: technologies[key] for key in ('wind', 'grid')}
@@ -203,6 +204,7 @@ def test_hybrid_wind_only(hybrid_config):
 
     assert npvs.wind == approx(-13692784, 1e3)
     assert npvs.hybrid == approx(-13692784, 1e3)
+
 
 def test_hybrid_pv_only(hybrid_config):
     technologies = hybrid_config["technologies"]
@@ -428,6 +430,7 @@ def test_hybrid_detailed_pv_only(site, hybrid_config, subtests):
         assert aeps.hybrid == approx(annual_energy_expected, 1e-3)
         assert npvs.pv == approx(npv_expected, 1e-3)
         assert npvs.hybrid == approx(npv_expected, 1e-3)
+
 
 @pytest.mark.skip(
     "Rework: this does not fit the new workflow, but the refactored code allows for users to specify a str representing a Singleowner default config name."

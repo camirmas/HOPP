@@ -1,1 +1,0 @@
-from hopp.tools.hopp_interface import HoppInterface

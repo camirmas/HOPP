@@ -5,6 +5,7 @@ import matplotlib.pyplot as plt
 from shapely.geometry import Polygon, Point, MultiPolygon
 from shapely.affinity import scale
 import PySAM.Windpower as windpower
+from hopp.simulation.technologies.wind import Floris
 
 from hopp.utilities.log import hybrid_logger as logger
 from hopp.simulation.technologies.layout.wind_layout_tools import (
@@ -45,7 +46,7 @@ class WindLayout:
     """
     def __init__(self,
                  site_info: SiteInfo,
-                 wind_source: windpower.Windpower,
+                 wind_source: Union[windpower.Windpower, Floris],
                  layout_mode: str,
                  parameters: Union[WindBoundaryGridParameters, WindCustomParameters, None],
                  min_spacing: float = 200.,
