@@ -127,7 +127,7 @@ class Battery(PowerSource):
         self.system_model = BatteryModel.default(self._chemistry)
 
         if self.config.fin_model is not None:
-            self.financial_model = self.import_financial_model(self.config.fin_model, self.system_model, self.config_name)
+            self.financial_model = self.import_financial_model(self.config.fin_model_inst, self.system_model, self.config_name)
         else:
             self.financial_model = Singleowner.from_existing(self.system_model, self.config_name)
 

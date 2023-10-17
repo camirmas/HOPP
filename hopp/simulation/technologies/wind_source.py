@@ -1,5 +1,5 @@
 from pathlib import Path
-from typing import List, Optional, Tuple, Union, Sequence
+from typing import Optional, Tuple, Union, Sequence
 
 import PySAM.Windpower as Windpower
 import PySAM.Singleowner as Singleowner

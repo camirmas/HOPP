@@ -5,7 +5,6 @@ import pytest
 from pytest import approx, fixture, raises
 import numpy as np
 import json
-from attrs import asdict
 import PySAM.Singleowner as Singleowner
 
 from hopp.tools.hopp_interface import HoppInterface
@@ -19,7 +18,7 @@ from examples.Detailed_PV_Layout.detailed_pv_config import PVLayoutConfig
 from hopp.simulation.technologies.grid import Grid
 from hopp.simulation.technologies.layout.pv_design_utils import size_electrical_parameters
 from hopp.simulation.technologies.financial.mhk_cost_model import MHKCostModelInputs
-from tests.hopp.utils import create_default_site_info
+from tests.hopp.utils import create_default_site_info, DEFAULT_FIN_CONFIG
 from hopp import ROOT_DIR
 from hopp.utilities.utilities import load_yaml
 
@@ -29,7 +28,8 @@ def hybrid_config(site):
     """Loads the config YAML and updates site info to use resource files."""
     hybrid_config_path = ROOT_DIR.parent / "tests" / "hopp" / "inputs" / "hybrid_run.yaml"
     hybrid_config = load_yaml(hybrid_config_path)
-    hybrid_config["site"] = asdict(site)
+    # set manually so we don't have to hardcode resource filepaths for tests
+    hybrid_config["site"] = site
 
     return hybrid_config
 
@@ -48,13 +48,16 @@ def wavesite():
         "year": 2010,
         "tz": -7
     }
-    return(SiteInfo(data,wave_resource_file=wave_resource_file, solar=False, wind=False, wave=True))
+    return SiteInfo(
+        data,
+        wave_resource_file=wave_resource_file, 
+        solar=False, 
+        wind=False, 
+        wave=True
+    )
 
 mhk_yaml_path = ROOT_DIR.parent / "tests" / "hopp" / "inputs" / "wave" / "wave_device.yaml"
 mhk_config = load_yaml(mhk_yaml_path)
-
-default_fin_config_path = ROOT_DIR.parent / "tests" / "hopp" / "inputs" / "financial" / "custom_financial.yaml"
-default_fin_config = load_yaml(default_fin_config_path)
 
 interconnection_size_kw = 15000
 pv_kw = 5000
@@ -96,11 +99,11 @@ def test_hybrid_wave_only(hybrid_config, wavesite, subtests):
             'device_rating_kw': mhk_config['device_rating_kw'], 
             'num_devices': 10, 
             'wave_power_matrix': mhk_config['wave_power_matrix'],
-            'fin_model': default_fin_config
+            'fin_model': DEFAULT_FIN_CONFIG
         },
         'grid': {
             'interconnect_kw': interconnection_size_kw,
-            'fin_model': default_fin_config,
+            'fin_model': DEFAULT_FIN_CONFIG,
         }
     }
 
@@ -962,6 +965,7 @@ def test_capacity_credit(hybrid_config):
                     'interconnect_kw': interconnection_size_kw
                 }
     hybrid_config["technologies"] = wind_pv_battery
+    hybrid_config["site"] = site
     hi = HoppInterface(hybrid_config)
     hybrid_plant = hi.system
     hybrid_plant.ppa_price = (0.03, )

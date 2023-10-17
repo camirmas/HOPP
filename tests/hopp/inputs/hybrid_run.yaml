@@ -16,7 +16,7 @@ technologies:
       x_buffer: 2
   wind:
     num_turbines: 5
-    turbine_rating_kw: 1000
+    turbine_rating_kw: 2000
     layout_mode: 'boundarygrid'
     layout_params:
       border_spacing: 2
