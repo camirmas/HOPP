@@ -1,0 +1,19 @@
+technologies:
+  pv:
+    system_capacity_kw: 2000
+  wind:
+    num_turbines: 1
+    turbine_rating_kw: 1000
+  battery:
+    system_capacity_kwh: 5000
+    system_capacity_kw: 500
+  grid:
+    interconnect_kw: 5000
+    ppa_price: .04
+
+config:
+  dispatch_options:
+    # battery_dispatch: simple
+    battery_dispatch: heuristic
+    # grid_charging: false
+    include_lifecycle_count: false
