@@ -73,8 +73,8 @@ def run():
     # set up and run
     prob.setup()
 
-    recorder = om.SqliteRecorder(ROOT_DIR.parent / "ev" / "outputs" / "cases.sql")
-    prob.add_recorder(recorder)
+    # recorder = om.SqliteRecorder(ROOT_DIR.parent / "ev" / "outputs" / "cases.sql")
+    # prob.add_recorder(recorder)
 
     prob.run_driver()
 
