@@ -51,24 +51,23 @@ def run():
     model.add_subsystem("HOPP", HOPPComponent(config=hopp_config, verbose=True), promotes=["*"])
     model.add_subsystem("con_battery", BatteryResilienceComponent(verbose=False), promotes=["*"])
 
-    model.set_input_defaults("battery_capacity_kw", hopp_config["technologies"]["battery"]["system_capacity_kw"])
-    model.set_input_defaults("battery_capacity_kwh", hopp_config["technologies"]["battery"]["system_capacity_kwh"])
+    model.set_input_defaults("battery_capacity_kw", np.median(EV_LOAD))
+    model.set_input_defaults("battery_capacity_kwh", np.median(EV_LOAD) * 10)
     model.set_input_defaults("pv_rating_kw", hopp_config["technologies"]["pv"]["system_capacity_kw"])
     model.set_input_defaults("wind_rating_kw", hopp_config["technologies"]["wind"]["turbine_rating_kw"])
 
     # add design vars
-    model.add_design_var("battery_capacity_kwh", lower=0, upper=1e9, units="kW*h")
-    model.add_design_var("battery_capacity_kw", lower=0, upper=1e9, units="kW")
-    model.add_design_var("pv_rating_kw", lower=0, upper=1e9, units="kW")
-    model.add_design_var("wind_rating_kw", lower=500, upper=1e9, units="kW")
+    model.add_design_var("battery_capacity_kwh", lower=np.median(EV_LOAD) * 9, upper=1e6, units="kW*h")
+    model.add_design_var("battery_capacity_kw", lower=np.median(EV_LOAD), upper=1e6, units="kW")
+    model.add_design_var("pv_rating_kw", lower=100, upper=1e6, units="kW")
+    model.add_design_var("wind_rating_kw", lower=100, upper=1e6, units="kW")
 
     # objective
     prob.model.add_objective("lcoe_real", ref=1e-2)    
     
     # constraints
-    prob.model.add_constraint("battery_hours", lower=9, upper=10)
-    prob.model.add_constraint("battery_capacity_kw", lower=np.median(EV_LOAD))
-    prob.model.add_constraint("missed_load_perc", upper=25)
+    prob.model.add_constraint("battery_hours", lower=9)
+    prob.model.add_constraint("missed_load_perc", upper=20)
 
     # set up and run
     prob.setup()
