@@ -17,7 +17,7 @@ class HOPPComponent(om.ExplicitComponent):
         self.add_input("battery_capacity_kw", units="kW")
         self.add_input("battery_capacity_kwh", units="kW*h")
         self.add_input("pv_rating_kw", units="kW")
-        self.add_input("wind_rating_kw", units="kW")
+        # self.add_input("wind_rating_kw", units="kW")
 
         self.add_output("missed_load_perc", units="percent")
         self.add_output("lcoe_real", units="USD/(kW*h)")
@@ -28,7 +28,7 @@ class HOPPComponent(om.ExplicitComponent):
         config["technologies"]["pv"]["system_capacity_kw"] = inputs["pv_rating_kw"][0]
         config["technologies"]["battery"]["system_capacity_kw"] = inputs["battery_capacity_kw"][0]
         config["technologies"]["battery"]["system_capacity_kwh"] = inputs["battery_capacity_kwh"][0]
-        config["technologies"]["wind"]["turbine_rating_kw"] = inputs["wind_rating_kw"][0]
+        # config["technologies"]["wind"]["turbine_rating_kw"] = inputs["wind_rating_kw"][0]
 
         hi = HoppInterface(config)
 
@@ -37,7 +37,7 @@ class HOPPComponent(om.ExplicitComponent):
 
         if self.options["verbose"]:
             print(f"pv: {inputs['pv_rating_kw']}")
-            print(f"wind: {inputs['wind_rating_kw']}")
+            # print(f"wind: {inputs['wind_rating_kw']}")
             print("battery (kW/kWh)", inputs["battery_capacity_kw"], inputs["battery_capacity_kwh"])
             print(f"missed load %: {hi.system.grid.missed_load_percentage * 100}")
             print(f"LCOE: {hi.system.lcoe_real.hybrid/100.0}\n")

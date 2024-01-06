@@ -20,7 +20,7 @@ EV_PATH = ROOT_DIR.parent / "ev"
 EV_LOAD = pd.read_csv(EV_PATH / "data" / "boulder_demand_evi.csv", header=None)
 
 
-def create_site():
+def create_site() -> SiteInfo:
     site = SiteInfo(
             flatirons_site,
             solar_resource_file=str(DEFAULT_SOLAR_RESOURCE_FILE),
@@ -35,7 +35,17 @@ def create_site():
     return site
 
 
-def run():
+opt_config = {
+    # how many hours of resilience?
+    "resilience_hrs": {
+        "lower": 9,
+        "upper": 10,
+    },
+    # what quantile of load should we design resilience for?
+    "resilience_load": .95
+}
+
+def run(conf):
     # set up site
     site = create_site()
     hopp_config = load_yaml(EV_PATH / "inputs" / "ev-load-following-battery.yaml")
@@ -51,14 +61,17 @@ def run():
     model.add_subsystem("HOPP", HOPPComponent(config=hopp_config, verbose=True), promotes=["*"])
     model.add_subsystem("con_battery", BatteryResilienceComponent(verbose=False), promotes=["*"])
 
-    model.set_input_defaults("battery_capacity_kw", np.median(EV_LOAD))
-    model.set_input_defaults("battery_capacity_kwh", np.median(EV_LOAD) * 10)
+    # 95th percentile ev load
+    ev_load_95q = float(np.quantile(EV_LOAD, conf["resilience_load"]))
+
+    model.set_input_defaults("battery_capacity_kw", ev_load_95q)
+    model.set_input_defaults("battery_capacity_kwh", ev_load_95q * conf["resilience_hrs"]["upper"])
     model.set_input_defaults("pv_rating_kw", hopp_config["technologies"]["pv"]["system_capacity_kw"])
     model.set_input_defaults("wind_rating_kw", hopp_config["technologies"]["wind"]["turbine_rating_kw"])
 
     # add design vars
-    model.add_design_var("battery_capacity_kwh", lower=np.median(EV_LOAD) * 9, upper=1e6, units="kW*h")
-    model.add_design_var("battery_capacity_kw", lower=np.median(EV_LOAD), upper=1e6, units="kW")
+    model.add_design_var("battery_capacity_kwh", lower=ev_load_95q * conf["resilience_hrs"]["lower"], upper=1e6, units="kW*h")
+    model.add_design_var("battery_capacity_kw", lower=ev_load_95q, upper=1e6, units="kW")
     model.add_design_var("pv_rating_kw", lower=100, upper=1e6, units="kW")
     model.add_design_var("wind_rating_kw", lower=100, upper=1e6, units="kW")
 
@@ -66,8 +79,14 @@ def run():
     prob.model.add_objective("lcoe_real", ref=1e-2)    
     
     # constraints
-    prob.model.add_constraint("battery_hours", lower=9)
-    prob.model.add_constraint("missed_load_perc", upper=20)
+
+    ## define scaling of battery power and capacity
+    prob.model.add_constraint(
+        "battery_hours", 
+        lower=conf["resilience_hrs"]["lower"],
+        upper=conf["resilience_hrs"]["upper"]
+    )
+    # prob.model.add_constraint("missed_load_perc", upper=20)
 
     # set up and run
     prob.setup()
