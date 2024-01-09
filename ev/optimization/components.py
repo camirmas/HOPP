@@ -50,26 +50,3 @@ class HOPPComponent(om.ExplicitComponent):
 
     def setup_partials(self):
         self.declare_partials('*', '*', method='fd', form="forward")
-
-
-class BatteryResilienceComponent(om.ExplicitComponent):
-    """Used for constraints related to battery capacity and resilience."""
-
-    def initialize(self):
-        self.options.declare("config", recordable=False, types=dict)
-        self.options.declare("verbose", types=bool)
-
-    def setup(self):
-        self.add_input("battery_capacity_kw", units="kW")
-        self.add_input("battery_capacity_kwh", units="kW*h")
-
-        self.add_output("battery_hours", units="h")
-
-    def compute(self, inputs, outputs):
-        outputs["battery_hours"] = inputs["battery_capacity_kwh"] / inputs["battery_capacity_kw"]
-
-        if self.options["verbose"]:
-            print(f"battery hours: {outputs['battery_hours']}\n")
-
-    def setup_partials(self):
-        self.declare_partials('*', '*', method='fd', form="forward")

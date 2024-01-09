@@ -1,16 +1,10 @@
-import numpy as np
-import matplotlib.pyplot as plt
 import pandas as pd
 import openmdao.api as om
 
 from hopp import ROOT_DIR
-from hopp.simulation import HoppInterface
 from hopp.utilities import load_yaml
 from hopp.simulation.technologies.sites import SiteInfo, flatirons_site
-from hopp.tools.dispatch.plot_tools import (
-    plot_battery_output, plot_battery_dispatch_error, plot_generation_profile
-)
-from components import BatteryResilienceComponent, HOPPComponent
+from .components import HOPPComponent
 
 
 DEFAULT_SOLAR_RESOURCE_FILE = ROOT_DIR.parent / "resource_files" / "solar" / "35.2018863_-101.945027_psmv3_60_2012.csv"
@@ -35,7 +29,7 @@ def create_site() -> SiteInfo:
     return site
 
 
-def run():
+def run(case):
     # set up site
     site = create_site()
     hopp_config = load_yaml(EV_PATH / "inputs" / "ev-load-following-battery.yaml")
@@ -47,33 +41,41 @@ def run():
     prob.driver = om.pyOptSparseDriver(optimizer="IPOPT")
     prob.driver.opt_settings["tol"] = 1e-3
 
+    # bounds from optimization config
+    threshold_kw = case["threshold_kw"]
+    peak_req = case["peak_req"]
+
+    capacity_lower = threshold_kw * case["battery_hrs"]["lower"]
+    capacity_upper = threshold_kw * case["battery_hrs"]["upper"]
+
+    hopp_config["technologies"]["battery"]["system_capacity_kw"] = threshold_kw
+    hopp_config["technologies"]["battery"]["system_capacity_kwh"] = capacity_lower
+    hopp_config["config"]["dispatch_options"]["load_threshold_kw"] = threshold_kw
+
     # add components
     model.add_subsystem("HOPP", HOPPComponent(config=hopp_config, verbose=True), promotes=["*"])
-    model.add_subsystem("con_battery", BatteryResilienceComponent(verbose=False), promotes=["*"])
 
-    battery_init_p = hopp_config["technologies"]["battery"]["system_capacity_kw"]
+    # model defaults
     battery_init_c = hopp_config["technologies"]["battery"]["system_capacity_kwh"]
     pv_init = hopp_config["technologies"]["pv"]["system_capacity_kw"]
     wind_init = hopp_config["technologies"]["wind"]["turbine_rating_kw"]
-    threshold = hopp_config["config"]["dispatch_options"]["load_threshold_kw"]
 
-    model.set_input_defaults("battery_capacity_kwh", battery_init_c)
+    model.set_input_defaults("battery_capacity_kwh", capacity_upper)
     model.set_input_defaults("pv_rating_kw", pv_init)
     model.set_input_defaults("wind_rating_kw", wind_init)
 
     # add design vars
-    model.add_design_var("battery_capacity_kwh", lower=threshold * 5, upper = threshold * 10, units="kW*h")
-    # model.add_design_var("battery_capacity_kw", lower=0, upper=hopp_config["technologies"], units="kW")
+    model.add_design_var("battery_capacity_kwh", lower = capacity_lower, upper = capacity_upper, units="kW*h")
     model.add_design_var("pv_rating_kw", lower=100, upper=1e6, units="kW")
     model.add_design_var("wind_rating_kw", lower=100, upper=1e6, units="kW")
 
-    # objective
+    # add objective
     prob.model.add_objective("lcoe_real", ref=1e-2)    
     
-    # constraints
+    # add constraints
 
-    # avg missed peak load should be <= 10% of threshold
-    prob.model.add_constraint("avg_missed_peak_load", upper=.05 * threshold)
+    ## avg missed peak load <= some % of peak threshold
+    prob.model.add_constraint("avg_missed_peak_load", upper=(1 - peak_req) * threshold_kw)
 
     # set up and run
     prob.setup()
@@ -83,32 +85,34 @@ def run():
 
     prob.run_driver()
 
-
-def plot_outputs(hi: HoppInterface):
-    hybrid_plant = hi.system
-    plot_battery_dispatch_error(hybrid_plant)
-    plot_battery_output(hybrid_plant)
-    plot_generation_profile(hybrid_plant)
-
-    fig, ax = plt.subplots(figsize=(8, 6))
-
-    x = np.arange(8760)
-    y = hybrid_plant.battery.outputs.dispatch_P
-
-    periods = 24*7
-    dates = pd.date_range(start="2022-01-01", periods=periods, freq="H")
-
-    ax.plot(dates, y[:periods], linewidth=.6, label="Battery")
-    ax.plot(dates, hybrid_plant.site.desired_schedule[:periods], linewidth=.6, label="EV Demand")
-
-    ax.set_xticks(ax.get_xticks(), ax.get_xticklabels(), rotation=45)
-            
-    ax.set_xlabel("Hour")
-    ax.set_ylabel("Power (MW)")
-    ax.set_xmargin(0)
-
-    ax.legend()
+    res = {
+        "case": case,
+        "technologies": {
+            "pv": {
+                "system_capacity_kw": prob.get_val("pv_rating_kw")[0],
+            },
+            "wind": {
+                "turbine_rating_kw": prob.get_val("wind_rating_kw")[0],
+            },
+            "battery": {
+                "system_capacity_kw": threshold_kw,
+                "system_capacity_kwh": prob.get_val("battery_capacity_kwh")[0],
+            }
+        },
+        "lcoe_real": prob.get_val("lcoe_real")[0],
+    }
+    
+    return res
 
 
 if __name__ == "__main__":
-    run()
+    case = {
+        "threshold_kw": 500,
+        "peak_req": .95,
+        "battery_hrs": {
+            "lower": 5,
+            "upper": 10
+        }
+    }
+
+    run(case)
