@@ -35,17 +35,7 @@ def create_site() -> SiteInfo:
     return site
 
 
-opt_config = {
-    # how many hours of resilience?
-    "resilience_hrs": {
-        "lower": 9,
-        "upper": 10,
-    },
-    # what quantile of load should we design resilience for?
-    "resilience_load": .95
-}
-
-def run(conf):
+def run():
     # set up site
     site = create_site()
     hopp_config = load_yaml(EV_PATH / "inputs" / "ev-load-following-battery.yaml")
@@ -61,17 +51,19 @@ def run(conf):
     model.add_subsystem("HOPP", HOPPComponent(config=hopp_config, verbose=True), promotes=["*"])
     model.add_subsystem("con_battery", BatteryResilienceComponent(verbose=False), promotes=["*"])
 
-    # 95th percentile ev load
-    ev_load_95q = float(np.quantile(EV_LOAD, conf["resilience_load"]))
+    battery_init_p = hopp_config["technologies"]["battery"]["system_capacity_kw"]
+    battery_init_c = hopp_config["technologies"]["battery"]["system_capacity_kwh"]
+    pv_init = hopp_config["technologies"]["pv"]["system_capacity_kw"]
+    wind_init = hopp_config["technologies"]["wind"]["turbine_rating_kw"]
+    threshold = hopp_config["config"]["dispatch_options"]["load_threshold_kw"]
 
-    model.set_input_defaults("battery_capacity_kw", ev_load_95q)
-    model.set_input_defaults("battery_capacity_kwh", ev_load_95q * conf["resilience_hrs"]["upper"])
-    model.set_input_defaults("pv_rating_kw", hopp_config["technologies"]["pv"]["system_capacity_kw"])
-    model.set_input_defaults("wind_rating_kw", hopp_config["technologies"]["wind"]["turbine_rating_kw"])
+    model.set_input_defaults("battery_capacity_kwh", battery_init_c)
+    model.set_input_defaults("pv_rating_kw", pv_init)
+    model.set_input_defaults("wind_rating_kw", wind_init)
 
     # add design vars
-    model.add_design_var("battery_capacity_kwh", lower=ev_load_95q * conf["resilience_hrs"]["lower"], upper=1e6, units="kW*h")
-    model.add_design_var("battery_capacity_kw", lower=ev_load_95q, upper=1e6, units="kW")
+    model.add_design_var("battery_capacity_kwh", lower=threshold * 5, upper = threshold * 10, units="kW*h")
+    # model.add_design_var("battery_capacity_kw", lower=0, upper=hopp_config["technologies"], units="kW")
     model.add_design_var("pv_rating_kw", lower=100, upper=1e6, units="kW")
     model.add_design_var("wind_rating_kw", lower=100, upper=1e6, units="kW")
 
@@ -80,13 +72,8 @@ def run(conf):
     
     # constraints
 
-    ## define scaling of battery power and capacity
-    prob.model.add_constraint(
-        "battery_hours", 
-        lower=conf["resilience_hrs"]["lower"],
-        upper=conf["resilience_hrs"]["upper"]
-    )
-    # prob.model.add_constraint("missed_load_perc", upper=20)
+    # avg missed peak load should be <= 10% of threshold
+    prob.model.add_constraint("avg_missed_peak_load", upper=.05 * threshold)
 
     # set up and run
     prob.setup()

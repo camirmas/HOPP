@@ -1,17 +1,17 @@
 technologies:
   pv:
-    system_capacity_kw: 614.12747723
+    system_capacity_kw: 1000
   wind:
     num_turbines: 1
-    turbine_rating_kw: 863.91966535
+    turbine_rating_kw: 1000
   battery:
-    system_capacity_kwh: 9745.87822405
-    system_capacity_kw: 1082.87274009
+    system_capacity_kwh: 5000
+    system_capacity_kw: 500
   grid:
     interconnect_kw: 10000
     ppa_price: .05
 
 config:
   dispatch_options:
-    battery_dispatch: load_following_heuristic
-    # include_lifecycle_count: false
+    battery_dispatch: peak_shaving_heuristic
+    load_threshold_kw: 500
