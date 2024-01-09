@@ -49,6 +49,7 @@ class Grid(PowerSource):
     schedule_curtailed: NDArrayFloat = field(init=False)
     schedule_curtailed_percentage: float = field(init=False, default=0.)
     total_gen_max_feasible_year1: NDArrayFloat = field(init=False)
+    missed_peak_load: NDArrayFloat = field(init=False)
 
     def __attrs_post_init__(self):
         """
@@ -130,6 +131,7 @@ class Grid(PowerSource):
                 
                 generation_profile = []
                 missed_load = []
+                missed_peak_load = []
                 schedule_curtailed = []
 
                 for gen, schedule in zip(total_gen, lifetime_schedule):
@@ -140,14 +142,17 @@ class Grid(PowerSource):
 
                         if gen < threshold_mw:
                             missed_load.append(threshold_mw - gen)
+                            missed_peak_load.append(threshold_mw - gen)
                             schedule_curtailed.append(0)
                         else:
                             missed_load.append(0)
+                            missed_peak_load.append(0)
                             schedule_curtailed.append(gen - threshold_mw)
 
                     # if the demand is below threshold, calc missed/curtailed around schedule
                     else:
                         generation_profile.append(min(gen, schedule))
+
                         if gen < schedule:
                             missed_load.append(schedule - gen)
                             schedule_curtailed.append(0)
@@ -157,7 +162,11 @@ class Grid(PowerSource):
 
                 self.generation_profile = generation_profile
                 self.missed_load = np.array(missed_load)
+                self.missed_peak_load = np.array(missed_peak_load)
                 self.schedule_curtailed = np.array(schedule_curtailed)
+                
+                threshold_schedule = np.array([min(i, threshold_mw) for i in lifetime_schedule])
+                self.missed_load_percentage = sum(self.missed_load) / sum(threshold_schedule)
             else:
                 self.generation_profile = list(np.minimum(total_gen, lifetime_schedule)) # TODO: remove list() cast once parent class uses numpy 
 
