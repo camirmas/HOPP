@@ -7,6 +7,7 @@ from hopp.simulation.technologies.dispatch.power_storage import (
     NonConvexLinearVoltageBatteryDispatch,
     ConvexLinearVoltageBatteryDispatch,
     HeuristicLoadFollowingDispatch,
+    HeuristicPeakShavingDispatch
 )
 
 
@@ -57,6 +58,7 @@ class HybridDispatchOptions:
 
             - **higher_hours** (dict, default = {}): Higher hour count parameters: the value of power that must be available above the schedule and the number of hours in a row   
 
+            - **load_threshold_kw** (float): In peak shaving dispatch, set the load threshold (kW)
     """
     def __init__(self, dispatch_options: dict = None):
         self.solver: str = 'cbc'
@@ -81,6 +83,8 @@ class HybridDispatchOptions:
 
         self.use_higher_hours: bool = False
         self.higher_hours: dict = {}
+
+        self.load_threshold_kw: float = 0
 
         if dispatch_options is not None:
             for key, value in dispatch_options.items():
@@ -112,7 +116,9 @@ class HybridDispatchOptions:
             'simple': SimpleBatteryDispatch,
             'non_convex_LV': NonConvexLinearVoltageBatteryDispatch,
             'convex_LV': ConvexLinearVoltageBatteryDispatch,
-            'load_following_heuristic': HeuristicLoadFollowingDispatch}
+            'load_following_heuristic': HeuristicLoadFollowingDispatch,
+            'peak_shaving_heuristic': HeuristicPeakShavingDispatch
+        }
         if self.battery_dispatch in self._battery_dispatch_model_options:
             self.battery_dispatch_class = self._battery_dispatch_model_options[self.battery_dispatch]
             if 'heuristic' in self.battery_dispatch:

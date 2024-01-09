@@ -5,3 +5,4 @@ from hopp.simulation.technologies.dispatch.power_storage.power_storage_dispatch 
 from hopp.simulation.technologies.dispatch.power_storage.simple_battery_dispatch import SimpleBatteryDispatch
 from hopp.simulation.technologies.dispatch.power_storage.simple_battery_dispatch_heuristic import SimpleBatteryDispatchHeuristic
 from hopp.simulation.technologies.dispatch.power_storage.heuristic_load_following_dispatch import HeuristicLoadFollowingDispatch
+from hopp.simulation.technologies.dispatch.power_storage.heuristic_peak_shaving_dispatch import HeuristicPeakShavingDispatch

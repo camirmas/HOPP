@@ -509,9 +509,7 @@ class HybridDispatchBuilderSolver:
             prices = self.power_sources['grid'].dispatch.electricity_sell_price
             self.power_sources['battery'].dispatch.prices = prices
 
-        if  'load_following' in self.options.battery_dispatch:
-            # TODO: Look into how to define a system as load following or not in the config file
-            required_keys = ['desired_load']
+        if self.options.battery_dispatch in ['load_following_heuristic', 'peak_shaving_heuristic']:
             if self.site.follow_desired_schedule:
                 # Get difference between baseload demand and power generation and control scenario variables
                 load_value = self.site.desired_schedule
@@ -519,8 +517,7 @@ class HybridDispatchBuilderSolver:
                 self.power_sources['battery'].dispatch.load_difference = load_difference
             else:
                 raise ValueError(type(self).__name__ + " requires the following : desired_schedule")
-            # Adding goal_power for the simple battery heuristic method for power setpoint tracking 
-            goal_power = [load_value]*self.options.n_look_ahead_periods
+
             ### Note: the inputs grid_limit and goal_power are in MW ###
             self.power_sources['battery'].dispatch.set_fixed_dispatch(tot_gen, grid_limit, load_value)
         else:

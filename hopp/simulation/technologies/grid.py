@@ -122,15 +122,52 @@ class Grid(PowerSource):
                 x * 1e3 for x in self.site.desired_schedule],
                 int(project_life / (len(self.site.desired_schedule) // self.site.n_timesteps))
             )
-            self.generation_profile = list(np.minimum(total_gen, lifetime_schedule)) # TODO: remove list() cast once parent class uses numpy 
 
-            self.missed_load = np.array([schedule - gen if gen > 0 else schedule for (schedule, gen) in
-                                     zip(lifetime_schedule, self.generation_profile)])
-            self.missed_load_percentage = sum(self.missed_load)/sum(lifetime_schedule)
+            dispatch_options = dispatch_options or HybridDispatchOptions()
 
-            self.schedule_curtailed = np.array([gen - schedule if gen > schedule else 0. for (gen, schedule) in
-                                            zip(total_gen, lifetime_schedule)])
-            self.schedule_curtailed_percentage = sum(self.schedule_curtailed)/sum(lifetime_schedule)
+            if dispatch_options.battery_dispatch == "peak_shaving_heuristic":
+                threshold_mw = dispatch_options.load_threshold_kw
+                
+                generation_profile = []
+                missed_load = []
+                schedule_curtailed = []
+
+                for gen, schedule in zip(total_gen, lifetime_schedule):
+
+                    # if the demand is above threshold, calc missed/curtailed around threshold
+                    if schedule > threshold_mw:
+                        generation_profile.append(min(gen, threshold_mw))
+
+                        if gen < threshold_mw:
+                            missed_load.append(threshold_mw - gen)
+                            schedule_curtailed.append(0)
+                        else:
+                            missed_load.append(0)
+                            schedule_curtailed.append(gen - threshold_mw)
+
+                    # if the demand is below threshold, calc missed/curtailed around schedule
+                    else:
+                        generation_profile.append(min(gen, schedule))
+                        if gen < schedule:
+                            missed_load.append(schedule - gen)
+                            schedule_curtailed.append(0)
+                        else:
+                            missed_load.append(0)
+                            schedule_curtailed.append(gen - schedule)
+
+                self.generation_profile = generation_profile
+                self.missed_load = np.array(missed_load)
+                self.schedule_curtailed = np.array(schedule_curtailed)
+            else:
+                self.generation_profile = list(np.minimum(total_gen, lifetime_schedule)) # TODO: remove list() cast once parent class uses numpy 
+
+                self.missed_load = np.array([schedule - gen if gen > 0 else schedule for (schedule, gen) in
+                                        zip(lifetime_schedule, self.generation_profile)])
+                self.missed_load_percentage = sum(self.missed_load)/sum(lifetime_schedule)
+
+                self.schedule_curtailed = np.array([gen - schedule if gen > schedule else 0. for (gen, schedule) in
+                                                zip(total_gen, lifetime_schedule)])
+                self.schedule_curtailed_percentage = sum(self.schedule_curtailed)/sum(lifetime_schedule)
 
             # NOTE: This is currently only happening for load following, would be good to make it more general
             #           i.e. so that this analysis can be used when load following isn't being used (without storage)

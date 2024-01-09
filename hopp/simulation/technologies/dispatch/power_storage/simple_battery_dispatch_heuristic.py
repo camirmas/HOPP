@@ -1,10 +1,13 @@
-from typing import Optional, List, Dict
+from typing import Optional, List, TYPE_CHECKING
 
 import pyomo.environ as pyomo
 from pyomo.environ import units as u
 
 import PySAM.BatteryStateful as BatteryModel
 import PySAM.Singleowner as Singleowner
+
+if TYPE_CHECKING:
+    from hopp.simulation.technologies.dispatch.hybrid_dispatch_options import HybridDispatchOptions
 
 from hopp.simulation.technologies.dispatch.power_storage.simple_battery_dispatch import SimpleBatteryDispatch
 
@@ -21,13 +24,11 @@ class SimpleBatteryDispatchHeuristic(SimpleBatteryDispatch):
                  financial_model: Singleowner.Singleowner,
                  fixed_dispatch: Optional[List] = None,
                  block_set_name: str = 'heuristic_battery',
-                 dispatch_options: Optional[Dict] = None):
+                 dispatch_options: Optional["HybridDispatchOptions"] = None):
         """
 
         :param fixed_dispatch: list of normalized values [-1, 1] (Charging (-), Discharging (+))
         """
-        if dispatch_options is None:
-            dispatch_options = {}
         super().__init__(pyomo_model,
                          index_set,
                          system_model,
