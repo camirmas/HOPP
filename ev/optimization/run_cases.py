@@ -2,9 +2,22 @@ import os
 from typing import List
 import json
 
-import pandas as pd
-
 from ev.optimization.run_ev_opt import run
+
+dir = os.path.dirname(os.path.realpath(__file__))
+outputs_dir = dir + "/../outputs"
+
+
+def load_case_results() -> List[dict]:
+    cases = []
+
+    for i in range(4, 16):
+        fname = f"{outputs_dir}/{i}_battery_hrs.json"
+        with open(fname, "r") as f:
+            cases.append(json.load(f))
+
+    return cases
+
 
 def create_cases() -> dict:
     """
@@ -21,14 +34,11 @@ def create_cases() -> dict:
     """
     cases = {}
 
-    for c in [200, 400, 600, 800]:
-        cases[f"{c}kw_threshold"] = {
-            "threshold_kw": c,
+    for c in range(4, 16):
+        cases[f"{c}_battery_hrs"] = {
+            "threshold_kw": 500,
             "peak_req": .95,
-            "battery_hrs": {
-                "lower": 5,
-                "upper": 10
-            }
+            "battery_hrs": c
         }
     
     return cases
@@ -48,7 +58,6 @@ def run_cases(cases: dict) -> List[dict]:
     for name, case in cases.items():
         res = run(case)
 
-        dir = os.path.dirname(os.path.realpath(__file__))
         fname = f"{dir}/../outputs/{name}.json"
         with open(fname, "w") as f:
             f.write(json.dumps(res))

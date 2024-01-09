@@ -45,8 +45,7 @@ def run(case):
     threshold_kw = case["threshold_kw"]
     peak_req = case["peak_req"]
 
-    capacity_lower = threshold_kw * case["battery_hrs"]["lower"]
-    capacity_upper = threshold_kw * case["battery_hrs"]["upper"]
+    capacity_lower = threshold_kw * case["battery_hrs"]
 
     hopp_config["technologies"]["battery"]["system_capacity_kw"] = threshold_kw
     hopp_config["technologies"]["battery"]["system_capacity_kwh"] = capacity_lower
@@ -60,12 +59,12 @@ def run(case):
     pv_init = hopp_config["technologies"]["pv"]["system_capacity_kw"]
     wind_init = hopp_config["technologies"]["wind"]["turbine_rating_kw"]
 
-    model.set_input_defaults("battery_capacity_kwh", capacity_upper)
+    model.set_input_defaults("battery_capacity_kwh", capacity_lower)
     model.set_input_defaults("pv_rating_kw", pv_init)
     model.set_input_defaults("wind_rating_kw", wind_init)
 
     # add design vars
-    model.add_design_var("battery_capacity_kwh", lower = capacity_lower, upper = capacity_upper, units="kW*h")
+    model.add_design_var("battery_capacity_kwh", lower = capacity_lower, units="kW*h")
     model.add_design_var("pv_rating_kw", lower=100, upper=1e6, units="kW")
     model.add_design_var("wind_rating_kw", lower=100, upper=1e6, units="kW")
 
