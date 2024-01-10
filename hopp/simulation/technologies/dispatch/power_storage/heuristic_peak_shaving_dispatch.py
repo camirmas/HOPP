@@ -77,7 +77,7 @@ class HeuristicPeakShavingDispatch(SimpleBatteryDispatchHeuristic):
         threshold_mw = self.options.load_threshold_kw / 1000
 
         for t in self.blocks.index_set():
-            fd = (threshold_mw - gen[t]) / self.maximum_power
+            fd = (goal_power[t] - threshold_mw - gen[t]) / self.maximum_power
 
             if fd > 0.0:    # Discharging
                 if fd > self.max_discharge_fraction[t]:

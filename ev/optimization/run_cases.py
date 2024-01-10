@@ -1,5 +1,5 @@
 import os
-from typing import List
+from typing import List, Optional
 import json
 
 from ev.optimization.run_ev_opt import run
@@ -8,12 +8,16 @@ dir = os.path.dirname(os.path.realpath(__file__))
 outputs_dir = dir + "/../outputs"
 
 
-def load_case_results() -> List[dict]:
+def load_case_results(dirname: Optional[str] = None) -> List[dict]:
     cases = []
 
-    for i in range(4, 16):
-        fname = f"{outputs_dir}/{i}_battery_hrs.json"
-        with open(fname, "r") as f:
+    d = outputs_dir
+
+    if dirname is not None:
+        d = f"{outputs_dir}/{dirname}"
+
+    for fname in os.listdir(d):
+        with open(os.path.join(d, fname), "r") as f:
             cases.append(json.load(f))
 
     return cases
@@ -34,7 +38,7 @@ def create_cases() -> dict:
     """
     cases = {}
 
-    for c in range(4, 16):
+    for c in range(2, 16):
         cases[f"{c}_battery_hrs"] = {
             "threshold_kw": 500,
             "peak_req": .95,

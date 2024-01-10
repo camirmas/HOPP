@@ -138,16 +138,17 @@ class Grid(PowerSource):
 
                     # if the demand is above threshold, calc missed/curtailed around threshold
                     if schedule > threshold_mw:
-                        generation_profile.append(min(gen, threshold_mw))
+                        desired = schedule - threshold_mw
+                        generation_profile.append(min(gen, desired))
 
-                        if gen < threshold_mw:
-                            missed_load.append(threshold_mw - gen)
-                            missed_peak_load.append(threshold_mw - gen)
+                        if gen < desired:
+                            missed_load.append(desired - gen)
+                            missed_peak_load.append(desired - gen)
                             schedule_curtailed.append(0)
                         else:
                             missed_load.append(0)
                             missed_peak_load.append(0)
-                            schedule_curtailed.append(gen - threshold_mw)
+                            schedule_curtailed.append(gen - desired)
 
                     # if the demand is below threshold, calc missed/curtailed around schedule
                     else:
