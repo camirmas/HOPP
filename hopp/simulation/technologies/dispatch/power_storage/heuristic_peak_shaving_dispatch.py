@@ -61,9 +61,9 @@ class HeuristicPeakShavingDispatch(SimpleBatteryDispatchHeuristic):
                                                                                        / self.maximum_power)
 
     def set_fixed_dispatch(self, gen: list, grid_limit: list, goal_power: list):
-        """Sets charge and discharge power of battery dispatch using fixed_dispatch attribute and enforces available
+        """
+        Sets charge and discharge power of battery dispatch using fixed_dispatch attribute and enforces available
         generation and grid limits.
-
         """
         self.check_gen_grid_limit(gen, grid_limit)
         self._set_power_fraction_limits(gen, grid_limit)
@@ -71,13 +71,30 @@ class HeuristicPeakShavingDispatch(SimpleBatteryDispatchHeuristic):
         self._fix_dispatch_model_variables()
 
     def _heuristic_method(self, gen, goal_power):
-        """ Enforces battery power fraction limits and sets _fixed_dispatch attribute
-            Sets the _fixed_dispatch based on goal_power and gen (power generation profile)
+        """ 
+        Enforces battery power fraction limits and sets _fixed_dispatch attribute.
+
+        Sets the _fixed_dispatch based on goal_power, gen (power generation profile), and
+        peak shaving threshold.
         """
         threshold_mw = self.options.load_threshold_kw / 1000
 
         for t in self.blocks.index_set():
-            fd = (goal_power[t] - threshold_mw - gen[t]) / self.maximum_power
+            # fd = (goal_power[t] - threshold_mw - gen[t]) / self.maximum_power
+
+            # peak loads: use battery, note that this could mean charging if we
+            #   have high generation
+            if goal_power[t] > threshold_mw:
+                fd = (goal_power[t] - threshold_mw - gen[t]) / self.maximum_power
+            
+            # non-peak: use excess generation
+            elif gen[t] > goal_power[t]:
+                fd = (goal_power[t] - gen[t]) / self.maximum_power
+            
+            # do nothing (NOTE: we could make this configurable so that the 
+            #   battery could be used to support non-peak load)
+            else:
+                fd = 0
 
             if fd > 0.0:    # Discharging
                 if fd > self.max_discharge_fraction[t]:

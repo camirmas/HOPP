@@ -132,6 +132,7 @@ class Grid(PowerSource):
                 generation_profile = []
                 missed_load = []
                 missed_peak_load = []
+                schedule_shaved = []
                 schedule_curtailed = []
 
                 for gen, schedule in zip(total_gen, lifetime_schedule):
@@ -145,10 +146,12 @@ class Grid(PowerSource):
                             missed_load.append(desired - gen)
                             missed_peak_load.append(desired - gen)
                             schedule_curtailed.append(0)
+                            schedule_shaved.append(desired - gen)
                         else:
                             missed_load.append(0)
                             missed_peak_load.append(0)
                             schedule_curtailed.append(gen - desired)
+                            schedule_shaved.append(desired)
 
                     # if the demand is below threshold, calc missed/curtailed around schedule
                     else:
