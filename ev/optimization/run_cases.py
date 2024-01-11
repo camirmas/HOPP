@@ -23,6 +23,26 @@ def load_case_results(dirname: Optional[str] = None) -> List[dict]:
     return cases
 
 
+def get_best_case(dirname: Optional[str] = None) -> dict:
+    """
+    Gets the best case from the sweep results based on min LCOE.
+    
+    Returns:
+        dict: The case with the best LCOE.
+    """
+    cases = load_case_results(dirname)
+
+    best_case = cases[0]
+
+    for case in cases:
+        lcoe = case["lcoe_real"]
+
+        if lcoe < best_case["lcoe_real"]:
+            best_case = case
+
+    return best_case
+
+
 def create_cases() -> dict:
     """
     Creates a dictionary of different EV (Electric Vehicle) optimization cases.
@@ -38,7 +58,7 @@ def create_cases() -> dict:
     """
     cases = {}
 
-    for c in range(2, 16):
+    for c in range(3, 11):
         cases[f"{c}_battery_hrs"] = {
             "threshold_kw": 500,
             "peak_req": .95,

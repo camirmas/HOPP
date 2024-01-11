@@ -1,1 +1,0 @@
-{"case": {"threshold_kw": 500, "peak_req": 0.95, "battery_hrs": 12}, "technologies": {"pv": {"system_capacity_kw": 879.5552391509754}, "wind": {"turbine_rating_kw": 1117.4225030635448}, "battery": {"system_capacity_kw": 500, "system_capacity_kwh": 6000.022027375745}}, "lcoe_real": 0.09874145096545922}

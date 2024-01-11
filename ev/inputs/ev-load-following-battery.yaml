@@ -1,9 +1,9 @@
 technologies:
   pv:
-    system_capacity_kw: 1000
+    system_capacity_kw: 2000
   wind:
     num_turbines: 1
-    turbine_rating_kw: 1000
+    turbine_rating_kw: 2000
   battery:
     system_capacity_kwh: 5000
     system_capacity_kw: 500

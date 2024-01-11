@@ -39,6 +39,7 @@ def run(case):
     model = om.Group()
     prob = om.Problem(model)
     prob.driver = om.pyOptSparseDriver(optimizer="IPOPT")
+    prob.driver.opt_settings["tol"] = 1e-6
 
     # bounds from optimization config
     threshold_kw = case["threshold_kw"]
