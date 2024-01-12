@@ -18,7 +18,7 @@ class HOPPComponent(om.ExplicitComponent):
         self.add_input("pv_rating_kw", units="kW")
         self.add_input("wind_rating_kw", units="kW")
 
-        self.add_output("missed_load_perc", units="percent")
+        self.add_output("missed_load_percentage", units="percent")
         self.add_output("avg_missed_peak_load", units="kW")
         self.add_output("lcoe_real", units="USD/(kW*h)")
         self.add_output("curtailed", units="kW")
@@ -37,15 +37,16 @@ class HOPPComponent(om.ExplicitComponent):
         hi.simulate(self.options["project_life"])
 
         # get result
-        outputs["missed_load_perc"] = hi.system.grid.missed_load_percentage * 100
-        outputs["avg_missed_peak_load"] = np.mean(hi.system.grid.missed_peak_load)
+        outputs["missed_load_percentage"] = hi.system.grid.missed_load_percentage * 100
+        outputs["avg_missed_peak_load"] = np.mean(hi.system.grid.missed_load)
         outputs["lcoe_real"] = hi.system.lcoe_real.hybrid/100.0 # convert from cents/kWh to USD/kWh
 
         if self.options["verbose"]:
             print(f"pv: {inputs['pv_rating_kw']}")
             print(f"wind: {inputs['wind_rating_kw']}")
             # print("battery (kWh)", inputs["battery_capacity_kwh"])
-            print(f"avg missed peak load (kW): {outputs['avg_missed_peak_load']}")
+            print(f"missed load %: {outputs['missed_load_percentage']}")
+            print(f"avg missed load (kW): {outputs['avg_missed_peak_load']}")
             print(f"LCOE: {outputs['lcoe_real']}\n")
 
     def setup_partials(self):

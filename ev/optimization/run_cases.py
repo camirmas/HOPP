@@ -48,9 +48,10 @@ def create_cases() -> dict:
     Creates a dictionary of different EV (Electric Vehicle) optimization cases.
 
     Each case contains parameters:
-    - 'threshold_kw': The kW threshold for the case.
-    - 'peak_req': Peak requirement, set at 0.95 for all cases.
-    - 'battery_hrs': A dictionary specifying the lower and upper bounds for battery hours.
+    - 'battery_capacity_kw': Battery power
+    - 'battery_capacity_kwh': Battery capacity, calculated for sweep
+    - 'threshold_kw': The kW threshold for the case
+    - 'missed_allowed': Upper bound on average missed load (kW)
 
     Returns:
         dict: A dictionary where each key is a string in the format '{value}kw_threshold',
@@ -60,9 +61,10 @@ def create_cases() -> dict:
 
     for c in range(3, 11):
         cases[f"{c}_battery_hrs"] = {
+            "battery_capacity_kw": 600,
+            "battery_capacity_kwh": 600 * c,
             "threshold_kw": 500,
-            "peak_req": .95,
-            "battery_hrs": c
+            "missed_allowed": 30,
         }
     
     return cases

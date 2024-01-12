@@ -30,6 +30,7 @@ def create_site() -> SiteInfo:
 
 
 def run(case):
+    print("running case: ", case)
     # set up site
     site = create_site()
     hopp_config = load_yaml(EV_PATH / "inputs" / "ev-load-following-battery.yaml")
@@ -42,13 +43,13 @@ def run(case):
     prob.driver.opt_settings["tol"] = 1e-6
 
     # bounds from optimization config
+    battery_capacity_kw = case["battery_capacity_kw"]
+    battery_capacity_kwh = case["battery_capacity_kwh"]
     threshold_kw = case["threshold_kw"]
-    peak_req = case["peak_req"]
+    missed_allowed = case["missed_allowed"]
 
-    capacity = threshold_kw * case["battery_hrs"]
-
-    hopp_config["technologies"]["battery"]["system_capacity_kw"] = threshold_kw
-    hopp_config["technologies"]["battery"]["system_capacity_kwh"] = capacity
+    hopp_config["technologies"]["battery"]["system_capacity_kw"] = battery_capacity_kw
+    hopp_config["technologies"]["battery"]["system_capacity_kwh"] = battery_capacity_kwh
     hopp_config["config"]["dispatch_options"]["load_threshold_kw"] = threshold_kw
 
     # add components
@@ -70,8 +71,8 @@ def run(case):
     
     # add constraints
 
-    ## avg missed peak load <= some % of peak threshold
-    prob.model.add_constraint("avg_missed_peak_load", upper=(1 - peak_req) * threshold_kw)
+    ## avg missed peak load allowed
+    prob.model.add_constraint("avg_missed_peak_load", upper=missed_allowed)
 
     # set up and run
     prob.setup()
@@ -91,8 +92,8 @@ def run(case):
                 "turbine_rating_kw": prob.get_val("wind_rating_kw")[0],
             },
             "battery": {
-                "system_capacity_kw": threshold_kw,
-                "system_capacity_kwh": threshold_kw * case["battery_hrs"],
+                "system_capacity_kw": battery_capacity_kw,
+                "system_capacity_kwh": battery_capacity_kwh
             }
         },
         "lcoe_real": prob.get_val("lcoe_real")[0],
@@ -104,9 +105,10 @@ def run(case):
 
 if __name__ == "__main__":
     case = {
+        "battery_capacity_kw": 600,
+        "battery_capacity_kwh": 3000,
         "threshold_kw": 500,
-        "peak_req": .95,
-        "battery_hrs": 8
+        "missed_allowed": 30,
     }
 
     run(case)
