@@ -4,6 +4,7 @@ import pytest
 from pytest import fixture
 import numpy as np
 from numpy.testing import assert_array_equal, assert_approx_equal
+from hopp.simulation.technologies.dispatch.hybrid_dispatch_options import HybridDispatchOptions
 
 from hopp.simulation.technologies.grid import GridConfig, Grid
 from tests.hopp.utils import create_default_site_info
@@ -85,7 +86,8 @@ def test_simulate_grid_connection(mock_simulate_power, site, subtests):
             total_gen,
             project_life,
             lifetime_sim,
-            total_gen_max_feasible_year1
+            total_gen_max_feasible_year1,
+            HybridDispatchOptions(),
         )
         assert_array_equal(grid.generation_profile, total_gen)
 
@@ -108,7 +110,8 @@ def test_simulate_grid_connection(mock_simulate_power, site, subtests):
             total_gen,
             project_life,
             lifetime_sim,
-            total_gen_max_feasible_year1
+            total_gen_max_feasible_year1,
+            HybridDispatchOptions()
         )
 
         timesteps = site.n_timesteps * project_life

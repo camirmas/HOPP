@@ -96,7 +96,7 @@ class Grid(PowerSource):
         project_life: int, 
         lifetime_sim: bool, 
         total_gen_max_feasible_year1: Union[List[float], NDArrayFloat],
-        dispatch_options: Optional["HybridDispatchOptions"] = None
+        dispatch_options: "HybridDispatchOptions"
     ):
         """
         Sets up and simulates hybrid system grid connection. Additionally,
@@ -123,8 +123,6 @@ class Grid(PowerSource):
                 x * 1e3 for x in self.site.desired_schedule],
                 int(project_life / (len(self.site.desired_schedule) // self.site.n_timesteps))
             )
-
-            dispatch_options = dispatch_options or HybridDispatchOptions()
 
             if dispatch_options.battery_dispatch == "peak_shaving_heuristic":
                 threshold_mw = dispatch_options.load_threshold_kw

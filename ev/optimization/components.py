@@ -19,9 +19,9 @@ class HOPPComponent(om.ExplicitComponent):
         self.add_input("wind_rating_kw", units="kW")
 
         self.add_output("missed_load_percentage", units="percent")
-        self.add_output("avg_missed_peak_load", units="kW")
+        self.add_output("avg_missed_peak_load", units="kW*h")
         self.add_output("lcoe_real", units="USD/(kW*h)")
-        self.add_output("curtailed", units="kW")
+        self.add_output("curtailed", units="kW*h")
 
     def compute(self, inputs, outputs):
         config = self.options["config"]
