@@ -45,7 +45,9 @@ class Grid(PowerSource):
 
     # TODO: figure out if this is the best place for these
     missed_load: NDArrayFloat = field(init=False)
+    missed_peak_load: NDArrayFloat = field(init=False)
     missed_load_percentage: float = field(init=False, default=0.)
+    missed_peak_load_percentage: float = field(init=False, default=0.)
     schedule_curtailed: NDArrayFloat = field(init=False)
     schedule_curtailed_percentage: float = field(init=False, default=0.)
     total_gen_max_feasible_year1: NDArrayFloat = field(init=False)
@@ -131,6 +133,7 @@ class Grid(PowerSource):
                 missed_load = []
                 schedule_shaved = []
                 schedule_curtailed = []
+                missed_peak_load = []
                 peak_load = []
 
                 for gen, schedule in zip(total_gen, lifetime_schedule):
@@ -142,11 +145,11 @@ class Grid(PowerSource):
                         generation_profile.append(min(gen, desired))
 
                         if gen < desired:
-                            missed_load.append(desired - gen)
+                            missed_peak_load.append(desired - gen)
                             schedule_curtailed.append(0)
                             schedule_shaved.append(desired - gen)
                         else:
-                            missed_load.append(0)
+                            missed_peak_load.append(0)
                             schedule_curtailed.append(gen - desired)
                             schedule_shaved.append(desired)
 
@@ -163,9 +166,11 @@ class Grid(PowerSource):
 
                 self.generation_profile = generation_profile
                 self.missed_load = np.array(missed_load)
+                self.missed_peak_load = np.array(missed_peak_load)
                 self.schedule_curtailed = np.array(schedule_curtailed)
                 
-                self.missed_load_percentage = sum(self.missed_load) / sum(peak_load)
+                self.missed_load_percentage = sum(self.missed_load) / sum(lifetime_schedule)
+                self.missed_peak_load_percentage = sum(self.missed_peak_load) / sum(peak_load)
             else:
                 self.generation_profile = list(np.minimum(total_gen, lifetime_schedule)) # TODO: remove list() cast once parent class uses numpy 
 

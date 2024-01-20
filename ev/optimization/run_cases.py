@@ -2,6 +2,8 @@ import os
 from typing import List, Optional
 import json
 
+import numpy as np
+
 from ev.optimization.run_ev_opt import run
 
 dir = os.path.dirname(os.path.realpath(__file__))
@@ -59,7 +61,7 @@ def create_cases() -> dict:
     """
     cases = {}
 
-    for c in range(3, 11):
+    for c in np.arange(1, 5.25, .25):
         cases[f"{c}_battery_hrs"] = {
             "battery_capacity_kw": 600,
             "battery_capacity_kwh": 600 * c,

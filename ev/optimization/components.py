@@ -37,8 +37,8 @@ class HOPPComponent(om.ExplicitComponent):
         hi.simulate(self.options["project_life"])
 
         # get result
-        outputs["missed_load_percentage"] = hi.system.grid.missed_load_percentage * 100
-        outputs["avg_missed_peak_load"] = np.mean(hi.system.grid.missed_load)
+        outputs["missed_load_percentage"] = hi.system.grid.missed_peak_load_percentage * 100
+        outputs["avg_missed_peak_load"] = np.mean(hi.system.grid.missed_peak_load)
         outputs["lcoe_real"] = hi.system.lcoe_real.hybrid/100.0 # convert from cents/kWh to USD/kWh
 
         if self.options["verbose"]:

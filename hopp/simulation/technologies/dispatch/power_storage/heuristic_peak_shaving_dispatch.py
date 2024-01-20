@@ -80,22 +80,15 @@ class HeuristicPeakShavingDispatch(SimpleBatteryDispatchHeuristic):
         threshold_mw = self.options.load_threshold_kw / 1000
 
         for t in self.blocks.index_set():
-            # fd = (goal_power[t] - threshold_mw - gen[t]) / self.maximum_power
-
             # peak loads: use battery, note that this could mean charging if we
             #   have high generation
             if goal_power[t] > threshold_mw:
                 fd = (goal_power[t] - threshold_mw - gen[t]) / self.maximum_power
             
-            # non-peak: use excess generation
-            elif gen[t] > goal_power[t]:
-                fd = (goal_power[t] - gen[t]) / self.maximum_power
-            
-            # do nothing (NOTE: we could make this configurable so that the 
-            #   battery could be used to support non-peak load)
+            # non-peak: charge with non-dispatchable generation
             else:
-                fd = 0
-
+                fd = - gen[t] / self.maximum_power
+            
             if fd > 0.0:    # Discharging
                 if fd > self.max_discharge_fraction[t]:
                     fd = self.max_discharge_fraction[t]

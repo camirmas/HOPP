@@ -1,0 +1,1 @@
+{"case": {"battery_capacity_kw": 600, "battery_capacity_kwh": 600.0, "threshold_kw": 500, "missed_allowed": 30}, "technologies": {"pv": {"system_capacity_kw": 1091.1897116384105}, "wind": {"turbine_rating_kw": 2771.1732413705636}, "battery": {"system_capacity_kw": 600, "system_capacity_kwh": 600.0}}, "lcoe_real": 0.18816299777885662, "avg_missed_peak_load": 29.999338530231068}
