@@ -138,7 +138,7 @@ class Grid(PowerSource):
 
                 for gen, schedule in zip(total_gen, lifetime_schedule):
 
-                    # if the demand is above threshold, calc missed/curtailed around threshold
+                    # if the demand is above threshold, calc missed/curtailed around desired
                     if schedule > threshold_mw:
                         desired = schedule - threshold_mw
                         peak_load.append(desired)
@@ -146,10 +146,12 @@ class Grid(PowerSource):
 
                         if gen < desired:
                             missed_peak_load.append(desired - gen)
+                            missed_load.append(desired - gen)
                             schedule_curtailed.append(0)
                             schedule_shaved.append(desired - gen)
                         else:
                             missed_peak_load.append(0)
+                            missed_load.append(0)
                             schedule_curtailed.append(gen - desired)
                             schedule_shaved.append(desired)
 
